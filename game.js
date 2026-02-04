@@ -161,13 +161,14 @@ function drawGame() {
 
   // ---- Scenario text ----
   fill(60);
-  textSize(22);
-  textAlign(CENTER);
+  textSize(24);
+  textAlign(CENTER, CENTER);
   const scenario = scenarios[currentScenarioIndex];
-  text(scenario.text, width / 2, 460, 650, 80); // Moved up from 520 to 460
+  // Position text higher and more centered like the original
+  text(scenario.text, width / 2, 200);
 
   // ---- Choice buttons ----
-  const buttonY = 600; // Moved up from 630 to 600
+  const buttonY = 630; // Back to original position
   const buttonSpacing = 260;
   const startX =
     width / 2 - ((scenario.choices.length - 1) * buttonSpacing) / 2;
@@ -189,7 +190,7 @@ function drawGame() {
   for (let i = 0; i < scenario.choices.length; i++) {
     const btn = {
       x: startX + i * buttonSpacing,
-      y: 600, // Match the new button position
+      y: 630, // Back to original position
       w: 240,
       h: 100,
     };
@@ -373,7 +374,7 @@ function drawChoiceButton({ x, y, w, h, label }) {
 // ------------------------------
 function gameMousePressed() {
   const scenario = scenarios[currentScenarioIndex];
-  const buttonY = 600; // Match the new button position
+  const buttonY = 630; // Back to original position
   const buttonSpacing = 260;
   const startX =
     width / 2 - ((scenario.choices.length - 1) * buttonSpacing) / 2;

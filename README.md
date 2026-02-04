@@ -1,12 +1,14 @@
 ## Project Title
 
 GBDA302 Week 3 Example 1: Instructions Screen with Back button
+Egg Guardian! Raise your egg in a safe environment to make it hatch!
 
 ---
 
 ## Authors
 
-Karen Cochrane and David Han and your mom
+Karen Cochrane and David Han
+Modified by Marine-Chloe Vandame using Claude
 
 ---
 
@@ -35,5 +37,6 @@ N/A
 ## GenAI
 
 The code was written by Dr. Karen Cochrane but she used GenAI to write the comments.
+The code was modified by Marine-Chloe Vandame and she used GenAI to turn it into an Egg Game.
 
 ---

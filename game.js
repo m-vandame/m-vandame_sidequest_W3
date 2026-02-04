@@ -263,7 +263,7 @@ function drawStatBars() {
   const barY = 80;
   const barWidth = 200;
   const barHeight = 25;
-  const spacing = 40;
+  const spacing = 45;
 
   // Draw each stat bar
   drawSingleStatBar(
@@ -296,27 +296,51 @@ function drawStatBars() {
 }
 
 function drawSingleStatBar(label, value, x, y, w, h, col) {
-  // Label
+  // Label - positioned above the bar
   fill(60);
   textSize(16);
   textAlign(LEFT, CENTER);
-  text(label, x, y - 15);
+  text(label, x, y - 18);
 
-  // Bar background
+  // Bar background (unfilled portion)
   noStroke();
   fill(220);
+  rectMode(CORNER); // Use corner mode for accurate positioning
   rect(x, y, w, h, 5);
 
-  // Bar fill
-  const fillWidth = map(constrain(value, 0, 100), 0, 100, 0, w);
-  fill(col);
+  // Bar fill (filled portion based on value)
+  // Constrain value to 0-100 and map to bar width
+  const safeValue = constrain(value, 0, 100);
+  const fillWidth = (safeValue / 100) * w; // Direct percentage calculation
+
+  // Change color to red if below threshold (for happiness and health only)
+  let barColor = col;
+  if (
+    (label === "Happiness" || label === "Health") &&
+    safeValue < CRITICAL_THRESHOLD
+  ) {
+    barColor = color(255, 100, 100); // Red warning color
+  }
+
+  fill(barColor);
   rect(x, y, fillWidth, h, 5);
 
-  // Value text
+  // Value text - positioned to the RIGHT of the bar to avoid overlap
   fill(60);
-  textAlign(CENTER, CENTER);
+  textAlign(LEFT, CENTER);
   textSize(14);
-  text(Math.round(value), x + w + 25, y + h / 2);
+
+  // Add warning symbol if critical
+  let displayText = Math.round(safeValue);
+  if (
+    (label === "Happiness" || label === "Health") &&
+    safeValue < CRITICAL_THRESHOLD
+  ) {
+    displayText += " ⚠️";
+    fill(255, 100, 100); // Red text for warning
+  }
+
+  text(displayText, x + w + 10, y + h / 2);
 }
 
 // ------------------------------

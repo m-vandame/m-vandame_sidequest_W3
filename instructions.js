@@ -43,7 +43,7 @@ function drawInstr() {
   y += lineHeight * 1.5;
   text("⚠️ WARNING:", x, y);
   y += lineHeight;
-  text("   If Happiness or Health reach 0, your egg dies!", x, y);
+  text("   If Happiness or Health drop below 20, your egg dies!", x, y);
 
   y += lineHeight * 1.5;
   text("✨ Each choice affects your egg's stats differently.", x, y);

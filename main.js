@@ -27,6 +27,9 @@ let eggStats = {
 let decisionCount = 0;
 const DECISIONS_TO_HATCH = 5; // Egg hatches after 5 decisions
 
+// Thresholds for bad outcomes
+const CRITICAL_THRESHOLD = 20; // If happiness or health drop below this, you lose
+
 // ------------------------------
 // setup() - RUNS ONCE when game starts
 // ------------------------------
@@ -100,7 +103,10 @@ function resetGame() {
 // ------------------------------
 // HELPER: Check if egg died
 // ------------------------------
-// Returns true if any stat dropped too low
+// Returns true if any stat dropped below the critical threshold
 function checkEggDeath() {
-  return eggStats.happiness <= 0 || eggStats.health <= 0;
+  return (
+    eggStats.happiness < CRITICAL_THRESHOLD ||
+    eggStats.health < CRITICAL_THRESHOLD
+  );
 }

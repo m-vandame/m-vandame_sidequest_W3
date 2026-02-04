@@ -24,11 +24,11 @@ function drawLose() {
   const statY = 490;
   const spacing = 35;
 
-  // Highlight the stat that failed
-  if (eggStats.happiness <= 0) {
+  // Highlight the stat that failed (below threshold)
+  if (eggStats.happiness < CRITICAL_THRESHOLD) {
     fill(255, 100, 100);
     text(
-      "Happiness: " + Math.round(eggStats.happiness) + " ⚠️",
+      "Happiness: " + Math.round(eggStats.happiness) + " ⚠️ (Below 20!)",
       width / 2,
       statY,
     );
@@ -37,10 +37,10 @@ function drawLose() {
     text("Happiness: " + Math.round(eggStats.happiness), width / 2, statY);
   }
 
-  if (eggStats.health <= 0) {
+  if (eggStats.health < CRITICAL_THRESHOLD) {
     fill(255, 100, 100);
     text(
-      "Health: " + Math.round(eggStats.health) + " ⚠️",
+      "Health: " + Math.round(eggStats.health) + " ⚠️ (Below 20!)",
       width / 2,
       statY + spacing,
     );
@@ -58,10 +58,11 @@ function drawLose() {
 
   // ---- Advice message ----
   let advice = "";
-  if (eggStats.happiness <= 0) {
-    advice = "Your egg was too sad. Try making happier choices!";
-  } else if (eggStats.health <= 0) {
-    advice = "Your egg's health failed. Protect it better next time!";
+  if (eggStats.happiness < CRITICAL_THRESHOLD) {
+    advice =
+      "Your egg's happiness dropped below 20! Try making happier choices!";
+  } else if (eggStats.health < CRITICAL_THRESHOLD) {
+    advice = "Your egg's health dropped below 20! Protect it better next time!";
   }
 
   fill(120, 80, 80);

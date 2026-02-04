@@ -161,13 +161,13 @@ function drawGame() {
 
   // ---- Scenario text ----
   fill(60);
-  textSize(24);
+  textSize(22);
   textAlign(CENTER);
   const scenario = scenarios[currentScenarioIndex];
-  text(scenario.text, width / 2, 520, 700, 100);
+  text(scenario.text, width / 2, 460, 650, 80); // Moved up from 520 to 460
 
   // ---- Choice buttons ----
-  const buttonY = 630;
+  const buttonY = 600; // Moved up from 630 to 600
   const buttonSpacing = 260;
   const startX =
     width / 2 - ((scenario.choices.length - 1) * buttonSpacing) / 2;
@@ -189,7 +189,7 @@ function drawGame() {
   for (let i = 0; i < scenario.choices.length; i++) {
     const btn = {
       x: startX + i * buttonSpacing,
-      y: buttonY,
+      y: 600, // Match the new button position
       w: 240,
       h: 100,
     };
@@ -263,7 +263,7 @@ function drawStatBars() {
   const barY = 80;
   const barWidth = 200;
   const barHeight = 25;
-  const spacing = 45;
+  const spacing = 50; // Increased from 45 to 50 for more space
 
   // Draw each stat bar
   drawSingleStatBar(
@@ -373,7 +373,7 @@ function drawChoiceButton({ x, y, w, h, label }) {
 // ------------------------------
 function gameMousePressed() {
   const scenario = scenarios[currentScenarioIndex];
-  const buttonY = 630;
+  const buttonY = 600; // Match the new button position
   const buttonSpacing = 260;
   const startX =
     width / 2 - ((scenario.choices.length - 1) * buttonSpacing) / 2;

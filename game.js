@@ -164,8 +164,8 @@ function drawGame() {
   textSize(24);
   textAlign(CENTER, CENTER);
   const scenario = scenarios[currentScenarioIndex];
-  // Position text higher and more centered like the original
-  text(scenario.text, width / 2, 200);
+  // Position text below the egg
+  text(scenario.text, width / 2, 420);
 
   // ---- Choice buttons ----
   const buttonY = 630; // Back to original position

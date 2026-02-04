@@ -1,40 +1,35 @@
-// NOTE: Do NOT add setup() or draw() in this file
-// setup() and draw() live in main.js
-// This file only defines:
-// 1) drawStart() → what the start/menu screen looks like
-// 2) input handlers → what happens on click / key press on this screen
-// 3) a helper function to draw menu buttons
+// ------------------------------------------------------------
+// start.js = START/MENU SCREEN
+// ------------------------------------------------------------
+// This is the first screen players see
 
-// ------------------------------------------------------------
-// Start screen visuals
-// ------------------------------------------------------------
-// drawStart() is called from main.js only when:
-// currentScreen === "start"
 function drawStart() {
-  // Background colour for the start screen
-  background(180, 225, 220); // soft teal background
+  // Soft pastel background
+  background(255, 250, 240);
 
-  // ---- Title text ----
-  fill(30, 50, 60);
-  textSize(46);
+  // ---- Title ----
+  fill(100, 80, 120);
+  textSize(52);
   textAlign(CENTER, CENTER);
-  text("Win or Lose", width / 2, 180);
+  text("🥚 Egg Guardian 🥚", width / 2, 150);
 
-  // ---- Buttons (data only) ----
-  // These objects store the position/size/label for each button.
-  // Using objects makes it easy to pass them into drawButton()
-  // and also reuse the same information for hover checks.
+  // ---- Subtitle ----
+  textSize(22);
+  fill(120, 100, 140);
+  text("Keep your egg safe until it hatches!", width / 2, 210);
+
+  // ---- Buttons ----
   const startBtn = {
     x: width / 2,
-    y: 320,
+    y: 350,
     w: 240,
     h: 80,
-    label: "START",
+    label: "START GAME",
   };
 
   const instrBtn = {
     x: width / 2,
-    y: 430,
+    y: 460,
     w: 240,
     h: 80,
     label: "INSTRUCTIONS",
@@ -44,94 +39,57 @@ function drawStart() {
   drawButton(startBtn);
   drawButton(instrBtn);
 
-  // ---- Cursor feedback ----
-  // If the mouse is over either button, show a hand cursor
-  // so the player knows it is clickable.
+  // Change cursor when hovering
   const over = isHover(startBtn) || isHover(instrBtn);
   cursor(over ? HAND : ARROW);
 }
 
-// ------------------------------------------------------------
-// Mouse input for the start screen
-// ------------------------------------------------------------
-// Called from main.js only when currentScreen === "start"
 function startMousePressed() {
-  // For input checks, we only need x,y,w,h (label is optional)
-  const startBtn = { x: width / 2, y: 320, w: 240, h: 80 };
-  const instrBtn = { x: width / 2, y: 430, w: 240, h: 80 };
+  const startBtn = { x: width / 2, y: 350, w: 240, h: 80 };
+  const instrBtn = { x: width / 2, y: 460, w: 240, h: 80 };
 
-  // If START is clicked, go to the game screen
   if (isHover(startBtn)) {
+    resetGame(); // Reset stats when starting new game
     currentScreen = "game";
-  }
-  // If INSTRUCTIONS is clicked, go to the instructions screen
-  else if (isHover(instrBtn)) {
+  } else if (isHover(instrBtn)) {
     currentScreen = "instr";
   }
 }
 
-// ------------------------------------------------------------
-// Keyboard input for the start screen
-// ------------------------------------------------------------
-// Provides keyboard shortcuts:
-// - ENTER starts the game
-// - I opens instructions
 function startKeyPressed() {
   if (keyCode === ENTER) {
+    resetGame();
     currentScreen = "game";
   }
-
   if (key === "i" || key === "I") {
     currentScreen = "instr";
   }
 }
 
-// ------------------------------------------------------------
-// Helper: drawButton()
-// ------------------------------------------------------------
-// This function draws a button and changes its appearance on hover.
-// It does NOT decide what happens when you click the button.
-// That logic lives in startMousePressed() above.
-//
-// Keeping drawing separate from input/logic makes code easier to read.
+// ---- HELPER: Draw a button ----
 function drawButton({ x, y, w, h, label }) {
   rectMode(CENTER);
-
-  // Check if the mouse is over the button rectangle
   const hover = isHover({ x, y, w, h });
 
   noStroke();
 
-  // ---- Visual feedback (hover vs not hover) ----
-  // This is a common UI idea:
-  // - normal state is calmer
-  // - hover state is brighter + more “active”
-  //
-  // We also add a shadow using drawingContext (p5 lets you access the
-  // underlying canvas context for effects like shadows).
+  // Button color changes on hover
   if (hover) {
-    fill(255, 200, 150, 220); // warm coral on hover
-
-    // Shadow settings (only when hovered)
-    drawingContext.shadowBlur = 20;
-    drawingContext.shadowColor = color(255, 180, 120);
+    fill(255, 220, 180, 230);
+    drawingContext.shadowBlur = 15;
+    drawingContext.shadowColor = color(255, 200, 150);
   } else {
-    fill(255, 240, 210, 210); // soft cream base
-
-    // Softer shadow when not hovered
-    drawingContext.shadowBlur = 8;
-    drawingContext.shadowColor = color(220, 220, 220);
+    fill(255, 240, 220, 210);
+    drawingContext.shadowBlur = 5;
+    drawingContext.shadowColor = color(200, 200, 200);
   }
 
-  // Draw the rounded rectangle button
   rect(x, y, w, h, 14);
-
-  // Important: reset shadow so it does not affect other drawings
   drawingContext.shadowBlur = 0;
 
-  // Draw the label text on top of the button
-  fill(40, 60, 70);
-  textSize(28);
+  // Button text
+  fill(80, 60, 100);
+  textSize(24);
   textAlign(CENTER, CENTER);
   text(label, x, y);
 }

@@ -1,128 +1,407 @@
-// NOTE: Do NOT add setup() or draw() in this file
-// setup() and draw() live in main.js
-// This file only defines:
-// 1) drawGame() → what the game screen looks like
-// 2) input handlers → what happens when the player clicks or presses keys
-// 3) helper functions specific to this screen
+// ------------------------------------------------------------
+// game.js = MAIN GAMEPLAY SCREEN
+// ------------------------------------------------------------
+// This is where players make decisions to care for their egg
 
 // ------------------------------
-// Button data
+// SCENARIOS (the situations/choices)
 // ------------------------------
-// This object stores all the information needed to draw
-// and interact with the button on the game screen.
-// Keeping this in one object makes it easier to move,
-// resize, or restyle the button later.
-const gameBtn = {
-  x: 400, // x position (centre of the button)
-  y: 550, // y position (centre of the button)
-  w: 260, // width
-  h: 90, // height
-  label: "PRESS HERE", // text shown on the button
-};
+// Each scenario has:
+// - text: the situation description
+// - choices: array of 2-3 options, each with:
+//   - label: button text
+//   - effects: how it changes stats {happiness, health, wisdom}
+
+const scenarios = [
+  {
+    text: "Your egg is chilly! What do you do?",
+    choices: [
+      {
+        label: "Wrap it in a cozy blanket",
+        effects: { happiness: 10, health: 5, wisdom: 0 },
+      },
+      {
+        label: "Place it near a fireplace",
+        effects: { happiness: 5, health: -5, wisdom: 5 },
+      },
+      {
+        label: "Ignore it, eggs don't feel cold",
+        effects: { happiness: -15, health: -10, wisdom: 0 },
+      },
+    ],
+  },
+  {
+    text: "A strange bird is pecking near your egg!",
+    choices: [
+      {
+        label: "Shoo it away gently",
+        effects: { happiness: 5, health: 10, wisdom: 5 },
+      },
+      {
+        label: "Attack the bird aggressively",
+        effects: { happiness: -5, health: 10, wisdom: -10 },
+      },
+      {
+        label: "Observe what happens",
+        effects: { happiness: -10, health: -15, wisdom: 10 },
+      },
+    ],
+  },
+  {
+    text: "Your egg is making soft chirping sounds!",
+    choices: [
+      {
+        label: "Sing a lullaby to it",
+        effects: { happiness: 15, health: 0, wisdom: 5 },
+      },
+      {
+        label: "Read it a storybook",
+        effects: { happiness: 10, health: 0, wisdom: 15 },
+      },
+      {
+        label: "Tell it to be quiet",
+        effects: { happiness: -20, health: 0, wisdom: -5 },
+      },
+    ],
+  },
+  {
+    text: "It's feeding time! What do you feed your egg?",
+    choices: [
+      {
+        label: "Fresh spring water",
+        effects: { happiness: 5, health: 15, wisdom: 5 },
+      },
+      {
+        label: "Sweet nectar",
+        effects: { happiness: 15, health: -5, wisdom: 0 },
+      },
+      {
+        label: "Ancient wisdom scrolls (to absorb)",
+        effects: { happiness: 0, health: 5, wisdom: 20 },
+      },
+    ],
+  },
+  {
+    text: "Your egg wants to roll down a hill!",
+    choices: [
+      {
+        label: "Let it roll - it looks fun!",
+        effects: { happiness: 20, health: -10, wisdom: -5 },
+      },
+      {
+        label: "Hold it steady and safe",
+        effects: { happiness: -5, health: 15, wisdom: 10 },
+      },
+      {
+        label: "Roll with it down the hill",
+        effects: { happiness: 15, health: -5, wisdom: 5 },
+      },
+    ],
+  },
+  {
+    text: "A wise old turtle offers to teach your egg!",
+    choices: [
+      {
+        label: "Accept the wisdom lessons",
+        effects: { happiness: 5, health: 0, wisdom: 20 },
+      },
+      {
+        label: "Politely decline",
+        effects: { happiness: 0, health: 5, wisdom: -5 },
+      },
+      {
+        label: "Ask for health tips instead",
+        effects: { happiness: 0, health: 15, wisdom: 5 },
+      },
+    ],
+  },
+  {
+    text: "The sun is very bright today!",
+    choices: [
+      {
+        label: "Give your egg sunglasses",
+        effects: { happiness: 15, health: 5, wisdom: 0 },
+      },
+      {
+        label: "Keep it in the shade",
+        effects: { happiness: -5, health: 10, wisdom: 5 },
+      },
+      {
+        label: "Let it enjoy the sunshine",
+        effects: { happiness: 10, health: -5, wisdom: 10 },
+      },
+    ],
+  },
+];
+
+// Current scenario index
+let currentScenarioIndex = 0;
 
 // ------------------------------
-// Main draw function for this screen
+// MAIN DRAW FUNCTION
 // ------------------------------
-// drawGame() is called from main.js *only*
-// when currentScreen === "game"
 function drawGame() {
-  // Set background colour for the game screen
-  background(240, 230, 140);
+  background(255, 248, 235);
 
-  // ---- Title and instructions text ----
-  fill(0); // black text
-  textSize(32);
-  textAlign(CENTER, CENTER);
-  text("Game Screen", width / 2, 160);
+  // ---- Draw the egg ----
+  drawEgg();
 
+  // ---- Draw stat bars ----
+  drawStatBars();
+
+  // ---- Progress counter ----
+  fill(100);
   textSize(18);
+  textAlign(CENTER);
   text(
-    "Click the button (or press ENTER) for a random result.",
+    "Decision " + (decisionCount + 1) + " of " + DECISIONS_TO_HATCH,
     width / 2,
-    210,
+    40,
   );
 
-  // ---- Draw the button ----
-  // We pass the button object to a helper function
-  drawGameButton(gameBtn);
+  // ---- Scenario text ----
+  fill(60);
+  textSize(24);
+  textAlign(CENTER);
+  const scenario = scenarios[currentScenarioIndex];
+  text(scenario.text, width / 2, 520, 700, 100);
 
-  // ---- Cursor feedback ----
-  // If the mouse is over the button, show a hand cursor
-  // Otherwise, show the normal arrow cursor
-  cursor(isHover(gameBtn) ? HAND : ARROW);
+  // ---- Choice buttons ----
+  const buttonY = 630;
+  const buttonSpacing = 260;
+  const startX =
+    width / 2 - ((scenario.choices.length - 1) * buttonSpacing) / 2;
+
+  for (let i = 0; i < scenario.choices.length; i++) {
+    const btn = {
+      x: startX + i * buttonSpacing,
+      y: buttonY,
+      w: 240,
+      h: 100,
+      label: scenario.choices[i].label,
+      index: i,
+    };
+    drawChoiceButton(btn);
+  }
+
+  // ---- Cursor ----
+  let hovering = false;
+  for (let i = 0; i < scenario.choices.length; i++) {
+    const btn = {
+      x: startX + i * buttonSpacing,
+      y: buttonY,
+      w: 240,
+      h: 100,
+    };
+    if (isHover(btn)) hovering = true;
+  }
+  cursor(hovering ? HAND : ARROW);
 }
 
 // ------------------------------
-// Button drawing helper
+// DRAW THE EGG (visual representation)
 // ------------------------------
-// This function is responsible *only* for drawing the button.
-// It does NOT handle clicks or game logic.
-function drawGameButton({ x, y, w, h, label }) {
-  rectMode(CENTER);
+function drawEgg() {
+  push();
+  translate(width / 2, 280);
 
-  // Check if the mouse is hovering over the button
-  // isHover() is defined in main.js so it can be shared
+  // Egg shadow
+  noStroke();
+  fill(0, 0, 0, 30);
+  ellipse(0, 60, 120, 30);
+
+  // Egg body (changes color based on health)
+  const healthColor = map(eggStats.health, 0, 100, 150, 255);
+  fill(healthColor, 240, 220);
+  stroke(200, 180, 160);
+  strokeWeight(3);
+
+  // Egg shape
+  ellipse(0, 0, 140, 180);
+
+  // Happy face if happiness > 50
+  if (eggStats.happiness > 50) {
+    fill(80);
+    noStroke();
+    // Eyes
+    ellipse(-20, -10, 8, 12);
+    ellipse(20, -10, 8, 12);
+    // Smile
+    noFill();
+    stroke(80);
+    strokeWeight(2);
+    arc(0, 10, 40, 30, 0, PI);
+  } else if (eggStats.happiness > 20) {
+    // Neutral face
+    fill(80);
+    noStroke();
+    ellipse(-20, -10, 8, 12);
+    ellipse(20, -10, 8, 12);
+    stroke(80);
+    strokeWeight(2);
+    line(-15, 15, 15, 15);
+  } else {
+    // Sad face
+    fill(80);
+    noStroke();
+    ellipse(-20, -10, 8, 12);
+    ellipse(20, -10, 8, 12);
+    noFill();
+    stroke(80);
+    strokeWeight(2);
+    arc(0, 25, 40, 30, PI, TWO_PI);
+  }
+
+  pop();
+}
+
+// ------------------------------
+// DRAW STAT BARS
+// ------------------------------
+function drawStatBars() {
+  const barX = 100;
+  const barY = 80;
+  const barWidth = 200;
+  const barHeight = 25;
+  const spacing = 40;
+
+  // Draw each stat bar
+  drawSingleStatBar(
+    "Happiness",
+    eggStats.happiness,
+    barX,
+    barY,
+    barWidth,
+    barHeight,
+    color(255, 200, 100),
+  );
+  drawSingleStatBar(
+    "Health",
+    eggStats.health,
+    barX,
+    barY + spacing,
+    barWidth,
+    barHeight,
+    color(100, 255, 150),
+  );
+  drawSingleStatBar(
+    "Wisdom",
+    eggStats.wisdom,
+    barX,
+    barY + spacing * 2,
+    barWidth,
+    barHeight,
+    color(150, 180, 255),
+  );
+}
+
+function drawSingleStatBar(label, value, x, y, w, h, col) {
+  // Label
+  fill(60);
+  textSize(16);
+  textAlign(LEFT, CENTER);
+  text(label, x, y - 15);
+
+  // Bar background
+  noStroke();
+  fill(220);
+  rect(x, y, w, h, 5);
+
+  // Bar fill
+  const fillWidth = map(constrain(value, 0, 100), 0, 100, 0, w);
+  fill(col);
+  rect(x, y, fillWidth, h, 5);
+
+  // Value text
+  fill(60);
+  textAlign(CENTER, CENTER);
+  textSize(14);
+  text(Math.round(value), x + w + 25, y + h / 2);
+}
+
+// ------------------------------
+// DRAW CHOICE BUTTON
+// ------------------------------
+function drawChoiceButton({ x, y, w, h, label }) {
+  rectMode(CENTER);
   const hover = isHover({ x, y, w, h });
 
   noStroke();
+  fill(hover ? color(200, 220, 255) : color(230, 240, 255));
 
-  // Change button colour when hovered
-  // This gives visual feedback to the player
-  fill(
-    hover
-      ? color(180, 220, 255, 220) // lighter blue on hover
-      : color(200, 220, 255, 190), // normal state
-  );
+  if (hover) {
+    drawingContext.shadowBlur = 10;
+    drawingContext.shadowColor = color(180, 200, 255);
+  }
 
-  // Draw the button rectangle
-  rect(x, y, w, h, 14); // last value = rounded corners
+  rect(x, y, w, h, 10);
+  drawingContext.shadowBlur = 0;
 
-  // Draw the button text
-  fill(0);
-  textSize(28);
+  // Text
+  fill(40, 60, 100);
+  textSize(16);
   textAlign(CENTER, CENTER);
-  text(label, x, y);
+  text(label, x, y, w - 20, h - 20);
 }
 
 // ------------------------------
-// Mouse input for this screen
+// MOUSE INPUT
 // ------------------------------
-// This function is called from main.js
-// only when currentScreen === "game"
 function gameMousePressed() {
-  // Only trigger the outcome if the button is clicked
-  if (isHover(gameBtn)) {
-    triggerRandomOutcome();
+  const scenario = scenarios[currentScenarioIndex];
+  const buttonY = 630;
+  const buttonSpacing = 260;
+  const startX =
+    width / 2 - ((scenario.choices.length - 1) * buttonSpacing) / 2;
+
+  // Check which choice was clicked
+  for (let i = 0; i < scenario.choices.length; i++) {
+    const btn = {
+      x: startX + i * buttonSpacing,
+      y: buttonY,
+      w: 240,
+      h: 100,
+    };
+
+    if (isHover(btn)) {
+      makeChoice(i);
+      return;
+    }
   }
 }
 
 // ------------------------------
-// Keyboard input for this screen
+// MAKE A CHOICE (apply effects)
 // ------------------------------
-// Allows keyboard-only interaction (accessibility + design)
-function gameKeyPressed() {
-  // ENTER key triggers the same behaviour as clicking the button
-  if (keyCode === ENTER) {
-    triggerRandomOutcome();
-  }
-}
+function makeChoice(choiceIndex) {
+  const scenario = scenarios[currentScenarioIndex];
+  const choice = scenario.choices[choiceIndex];
 
-// ------------------------------
-// Game logic: win or lose
-// ------------------------------
-// This function decides what happens next in the game.
-// It does NOT draw anything.
-function triggerRandomOutcome() {
-  // random() returns a value between 0 and 1
-  // Here we use a 50/50 chance:
-  // - less than 0.5 → win
-  // - 0.5 or greater → lose
-  //
-  // You can bias this later, for example:
-  // random() < 0.7 → 70% chance to win
-  if (random() < 0.5) {
-    currentScreen = "win";
-  } else {
+  // Apply stat changes
+  eggStats.happiness += choice.effects.happiness;
+  eggStats.health += choice.effects.health;
+  eggStats.wisdom += choice.effects.wisdom;
+
+  // Keep stats in valid range (0-100)
+  eggStats.happiness = constrain(eggStats.happiness, 0, 100);
+  eggStats.health = constrain(eggStats.health, 0, 100);
+  eggStats.wisdom = constrain(eggStats.wisdom, 0, 100);
+
+  // Check if egg died
+  if (checkEggDeath()) {
     currentScreen = "lose";
+    return;
   }
+
+  // Increment decision count
+  decisionCount++;
+
+  // Check if egg hatched
+  if (decisionCount >= DECISIONS_TO_HATCH) {
+    currentScreen = "win";
+    return;
+  }
+
+  // Move to next random scenario
+  currentScenarioIndex = floor(random(scenarios.length));
 }

@@ -1,99 +1,70 @@
 // ------------------------------------------------------------
-// main.js = the “router” (traffic controller) for the whole game
+// main.js = MASTER CONTROLLER for the egg game
 // ------------------------------------------------------------
-//
-// Idea: this project has multiple screens (start, instructions, game, win, lose).
-// Instead of putting everything in one giant file, each screen lives in its own
-// file and defines two main things:
-//   1) drawX()         → how that screen looks
-//   2) XMousePressed() / XKeyPressed() → how that screen handles input
-//
-// This main.js file does 3 important jobs:
-//   A) stores the current screen in a single shared variable
-//   B) calls the correct draw function each frame
-//   C) sends mouse/keyboard input to the correct screen handler
+// This file controls which screen shows and tracks the egg's stats
 
 // ------------------------------
-// Global game state
+// CURRENT SCREEN (which page we're on)
 // ------------------------------
-// This variable is shared across all files because all files run in the same
-// global JavaScript scope when loaded in index.html.
-//
-// We store the “name” of the current screen as a string.
-// Only one screen should be active at a time.
-let currentScreen = "start"; // "start" | "instr" | "game" | "win" | "lose"
+let currentScreen = "start"; // can be: "start" | "instr" | "game" | "win" | "lose"
 
 // ------------------------------
-// setup() runs ONCE at the beginning
+// EGG STATS (these track throughout the game)
 // ------------------------------
-// This is where you usually set canvas size and initial settings.
+// These numbers represent how well you're caring for your egg
+// They start at 50 (middle values) and change based on your choices
+let eggStats = {
+  happiness: 50, // How happy your egg is (0-100)
+  health: 50, // How healthy your egg is (0-100)
+  wisdom: 50, // How wise your egg is becoming (0-100)
+};
+
+// ------------------------------
+// GAME PROGRESS
+// ------------------------------
+// This tracks how many decisions the player has made
+// The egg hatches after a certain number of choices
+let decisionCount = 0;
+const DECISIONS_TO_HATCH = 5; // Egg hatches after 5 decisions
+
+// ------------------------------
+// setup() - RUNS ONCE when game starts
+// ------------------------------
 function setup() {
   createCanvas(800, 800);
-
-  // Sets a default font for all text() calls
-  // (This can be changed later per-screen if you want.)
   textFont("sans-serif");
 }
 
 // ------------------------------
-// draw() runs every frame (many times per second)
+// draw() - RUNS EVERY FRAME (many times per second)
 // ------------------------------
-// This is the core “router” for visuals.
-// Depending on currentScreen, we call the correct draw function.
+// This decides which screen to show based on currentScreen
 function draw() {
-  // Each screen file defines its own draw function:
-  //   start.js         → drawStart()
-  //   instructions.js  → drawInstr()
-  //   game.js          → drawGame()
-  //   win.js           → drawWin()
-  //   lose.js          → drawLose()
-
+  // Call the correct drawing function for each screen
   if (currentScreen === "start") drawStart();
   else if (currentScreen === "instr") drawInstr();
   else if (currentScreen === "game") drawGame();
   else if (currentScreen === "win") drawWin();
   else if (currentScreen === "lose") drawLose();
-
-  // (Optional teaching note)
-  // This “if/else chain” is a very common early approach.
-  // Later in the course you might replace it with:
-  // - a switch statement, or
-  // - an object/map of screens
 }
 
 // ------------------------------
-// mousePressed() runs once each time the mouse is clicked
+// mousePressed() - RUNS when you click the mouse
 // ------------------------------
-// This routes mouse input to the correct screen handler.
 function mousePressed() {
-  // Each screen *may* define a mouse handler:
-  // start.js         → startMousePressed()
-  // instructions.js  → instrMousePressed()
-  // game.js          → gameMousePressed()
-  // win.js           → winMousePressed()
-  // lose.js          → loseMousePressed()
-
+  // Send the click to the correct screen's handler
   if (currentScreen === "start") startMousePressed();
   else if (currentScreen === "instr") instrMousePressed();
   else if (currentScreen === "game") gameMousePressed();
-  // The ?.() means “call this function only if it exists”
-  // This prevents errors if a screen doesn’t implement a handler.
   else if (currentScreen === "win") winMousePressed?.();
   else if (currentScreen === "lose") loseMousePressed?.();
 }
 
 // ------------------------------
-// keyPressed() runs once each time a key is pressed
+// keyPressed() - RUNS when you press a key
 // ------------------------------
-// This routes keyboard input to the correct screen handler.
 function keyPressed() {
-  // Each screen *may* define a key handler:
-  // start.js         → startKeyPressed()
-  // instructions.js  → instrKeyPressed()
-  // game.js          → gameKeyPressed()
-  // win.js           → winKeyPressed()
-  // lose.js          → loseKeyPressed()
-
+  // Send the keypress to the correct screen's handler
   if (currentScreen === "start") startKeyPressed();
   else if (currentScreen === "instr") instrKeyPressed();
   else if (currentScreen === "game") gameKeyPressed?.();
@@ -101,19 +72,11 @@ function keyPressed() {
   else if (currentScreen === "lose") loseKeyPressed?.();
 }
 
-// ------------------------------------------------------------
-// Shared helper function: isHover()
-// ------------------------------------------------------------
-//
-// Many screens have buttons.
-// This helper checks whether the mouse is inside a rectangle.
-//
-// Important: our buttons are drawn using rectMode(CENTER),
-// meaning x,y is the CENTRE of the rectangle.
-// So we check mouseX and mouseY against half-width/half-height bounds.
-//
-// Input:  an object with { x, y, w, h }
-// Output: true if mouse is over the rectangle, otherwise false
+// ------------------------------
+// HELPER: Check if mouse is over a rectangle
+// ------------------------------
+// This function checks if the mouse cursor is inside a button
+// We use it to detect when buttons are hovered or clicked
 function isHover({ x, y, w, h }) {
   return (
     mouseX > x - w / 2 && // mouse is right of left edge
@@ -121,4 +84,23 @@ function isHover({ x, y, w, h }) {
     mouseY > y - h / 2 && // mouse is below top edge
     mouseY < y + h / 2 // mouse is above bottom edge
   );
+}
+
+// ------------------------------
+// HELPER: Reset the game
+// ------------------------------
+// This function resets all stats and progress so you can play again
+function resetGame() {
+  eggStats.happiness = 50;
+  eggStats.health = 50;
+  eggStats.wisdom = 50;
+  decisionCount = 0;
+}
+
+// ------------------------------
+// HELPER: Check if egg died
+// ------------------------------
+// Returns true if any stat dropped too low
+function checkEggDeath() {
+  return eggStats.happiness <= 0 || eggStats.health <= 0;
 }

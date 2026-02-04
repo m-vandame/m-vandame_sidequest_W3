@@ -1,103 +1,88 @@
-// NOTE: Do NOT add setup() or draw() in this file
-// setup() and draw() live in main.js
-// This file only defines:
-// 1) drawInstr() → what the instructions screen looks like
-// 2) input handlers → how the player returns to the start screen
-// 3) helper functions specific to this screen
+// ------------------------------------------------------------
+// instructions.js = INSTRUCTIONS SCREEN
+// ------------------------------------------------------------
+// Explains how to play the game
 
-// ------------------------------
-// Main draw function for instructions screen
-// ------------------------------
-// drawInstr() is called from main.js
-// only when currentScreen === "instr"
 function drawInstr() {
-  // Light neutral background
-  background(240);
+  background(250, 245, 255);
 
-  // ---- Screen title ----
+  // ---- Title ----
   fill(0);
   textAlign(CENTER, TOP);
-  textSize(36);
-  text("Instructions", width / 2, 80);
+  textSize(40);
+  text("How to Play", width / 2, 60);
 
-  // ---- Instruction text ----
-  textSize(18);
+  // ---- Instructions text ----
+  textSize(20);
+  textAlign(LEFT, TOP);
+  fill(60);
 
-  // \n creates a line break in the text
-  // This is useful for simple multi-line instructions
-  const lines =
-    "Press the game button.\n" + "You have a chance to win or lose!";
+  const x = 100;
+  let y = 140;
+  const lineHeight = 35;
 
-  text(lines, width / 2, 160);
+  text("🎯 GOAL:", x, y);
+  y += lineHeight;
+  text(
+    "   Keep your egg alive for " +
+      DECISIONS_TO_HATCH +
+      " decisions until it hatches!",
+    x,
+    y,
+  );
+
+  y += lineHeight * 1.5;
+  text("📊 STATS TO WATCH:", x, y);
+  y += lineHeight;
+  text("   • Happiness - Keep your egg content and joyful", x, y);
+  y += lineHeight;
+  text("   • Health - Protect from harm and feed well", x, y);
+  y += lineHeight;
+  text("   • Wisdom - Help your egg learn and grow", x, y);
+
+  y += lineHeight * 1.5;
+  text("⚠️ WARNING:", x, y);
+  y += lineHeight;
+  text("   If Happiness or Health reach 0, your egg dies!", x, y);
+
+  y += lineHeight * 1.5;
+  text("✨ Each choice affects your egg's stats differently.", x, y);
 
   // ---- Back button ----
-  // This button lets the player return to the start screen
   const backBtn = {
-    x: width / 2, // centred horizontally
-    y: 560,
+    x: width / 2,
+    y: 650,
     w: 220,
     h: 70,
     label: "BACK",
   };
 
-  // Draw the back button
   drawInstrButton(backBtn);
-
-  // Change cursor when hovering over the button
   cursor(isHover(backBtn) ? HAND : ARROW);
 }
 
-// ------------------------------
-// Mouse input for instructions screen
-// ------------------------------
-// Called from main.js only when currentScreen === "instr"
 function instrMousePressed() {
-  // Button data must match the draw position
-  const backBtn = { x: width / 2, y: 560, w: 220, h: 70 };
-
-  // If the button is clicked, return to the start screen
+  const backBtn = { x: width / 2, y: 650, w: 220, h: 70 };
   if (isHover(backBtn)) {
     currentScreen = "start";
   }
 }
 
-// ------------------------------
-// Keyboard input for instructions screen
-// ------------------------------
-// Provides keyboard-only navigation
 function instrKeyPressed() {
-  // ESC is a common “go back” key in games and apps
-  if (keyCode === ESCAPE) {
-    currentScreen = "start";
-  }
-
-  // B key is an additional, explicit shortcut for “back”
-  if (key === "b" || key === "B") {
+  if (keyCode === ESCAPE || key === "b" || key === "B") {
     currentScreen = "start";
   }
 }
 
-// ------------------------------
-// Button drawing helper (instructions screen)
-// ------------------------------
-// This function is only responsible for drawing the button.
-// It is kept separate so the visual style can be changed
-// without touching input or game logic.
+// ---- HELPER: Draw instruction screen button ----
 function drawInstrButton({ x, y, w, h, label }) {
   rectMode(CENTER);
-
-  // Check whether the mouse is hovering over the button
   const hover = isHover({ x, y, w, h });
 
   noStroke();
-
-  // Subtle colour change on hover for visual feedback
-  fill(hover ? color(200, 200, 255, 200) : color(220, 220, 255, 170));
-
-  // Draw the button shape
+  fill(hover ? color(220, 200, 255, 220) : color(240, 230, 255, 200));
   rect(x, y, w, h, 12);
 
-  // Draw the button text
   fill(0);
   textSize(26);
   textAlign(CENTER, CENTER);
